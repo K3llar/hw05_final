@@ -5,7 +5,7 @@ from django.urls import reverse
 from posts.models import Post, Group, User
 
 test_data = {
-    'user': 'author',
+    'user': 'user',
     'user_not_author': 'not_author',
     'post_text': 'test text is testing post',
     'post_text_not_author': 'test text not author',

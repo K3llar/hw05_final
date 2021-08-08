@@ -6,17 +6,6 @@
      <h1>{{ group.title }}</h1>
        <p>{{ group.description|linebreaksbr }}</p>
          {% for post in page %}
-{#           {% load thumbnail %}#}
-{#           {% thumbnail post.image "960x339" crop="center" upscale=True as im %}#}
-{#             <img class="card-img" src="{{ im.url }}">#}
-{#           {% endthumbnail %}#}
-{#           <h3>#}
-{#           <title>Записи сообщества {{ post.group }}</title>#}
-{#           Автор: {{ post.author.get_full_name }}, Дата публикации: {{ post.pub_date|date:"d M Y" }}#}
-{#           Группа: {{ post.group }}#}
-{#           </h3>#}
-{#       <p>{{ post.text|linebreaksbr }}</p>#}
-{#       <hr>#}
              {% include 'posts/post_item.html' with post=post %}
         {% endfor %}
     {% include 'posts/includes/paginator.html' %}

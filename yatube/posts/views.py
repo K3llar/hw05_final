@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET
 
-from .models import Post, Group, User, Comment
+from .models import Post, Group, User, Comment, Follow
 from .forms import PostForm, CommentForm
 from yatube.settings import paginator_pages
 
@@ -35,8 +35,15 @@ def group_posts(request, slug):
 
 
 def profile(request, username):
-    author = User.objects.get(username=username)
+    author = get_object_or_404(User, username=username)
     post_list = Post.objects.all().filter(author=author)
+    if request.user.is_authenticated and Follow.objects.filter(user=request.user, author=author).exists():
+        return render(request, 'posts/profile.html',
+                      {
+                          'author': author,
+                          'page': paginator(request, post_list, paginator_pages),
+                          'following': True,
+                      })
     return render(request, 'posts/profile.html',
                   {
                       'author': author,
@@ -119,3 +126,34 @@ def add_comment(request, username, post_id):
     return render(request,
                   'posts/comments.html',
                   {'form': form}, )
+
+
+@login_required()
+def profile_follow(request, username):
+    author = get_object_or_404(User, username=username)
+    if author.id != request.user.id:
+        if not Follow.objects.filter(author=author, user=request.user).exists():
+            Follow.objects.create(user_id=request.user.id, author_id=author.id)
+            return redirect('profile', username)
+    return redirect('profile', username)
+
+
+@login_required()
+def profile_unfollow(request, username):
+    author = get_object_or_404(User, username=username)
+    user = get_object_or_404(User, username=request.user)
+    status = Follow.objects.filter(user=user, author=author)
+    if status.exists():
+        status.delete()
+    return redirect('profile', username)
+
+
+@login_required()
+def profile_index(request):
+    if Follow.objects.filter(user=request.user):
+        post_list = Post.objects.filter(author__following__user=request.user)
+        return render(request, 'posts/follow.html',
+                      {
+                          'page': paginator(request, post_list, paginator_pages),
+                      })
+    return render(request, 'posts/follow.html')
