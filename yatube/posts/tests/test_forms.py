@@ -142,4 +142,3 @@ class PostCreateFormTests(TestCase):
         self.assertEqual(
             len(response_final.context.get('page').object_list),
             posts_count + 2)
-
