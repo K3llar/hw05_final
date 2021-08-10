@@ -1,4 +1,3 @@
-from django.core.cache import cache
 from django.test import TestCase, Client
 from django.urls import reverse
 
@@ -139,5 +138,3 @@ class PostURLTests(TestCase):
                     kwargs={'slug': test_data['wrong_group']})
         )
         self.assertEqual(response.status_code, 404)
-
-

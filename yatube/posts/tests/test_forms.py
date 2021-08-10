@@ -64,7 +64,8 @@ class PostCreateFormTests(TestCase):
             follow=True,
         )
         last_post = Post.objects.first()
-        self.assertRedirects(response, templates_url_names['posts/index.html'])
+        self.assertRedirects(response,
+                             templates_url_names['posts/index.html'])
         self.assertEqual(Post.objects.count(), posts_count + 1)
         self.assertEqual(last_post.text, test_data['post_text'])
         self.assertEqual(last_post.author, self.user)
@@ -112,21 +113,33 @@ class PostCreateFormTests(TestCase):
             'text': test_data['post_text'],
             'group': self.group.id,
         }
-        create_first_post = self.authorized_client.post(
+        self.authorized_client.post(
             templates_url_names_login_required['posts/new_post.html'],
             data=form_data,
             follow=True,
         )
-        response_cache = self.authorized_client.get(templates_url_names['posts/index.html'])
-        self.assertEqual(len(response_cache.context.get('page').object_list), posts_count + 1)
-        create_second_post = self.authorized_client.post(
+        response_cache = self.authorized_client.get(
+            templates_url_names['posts/index.html']
+        )
+        self.assertEqual(
+            len(response_cache.context.get('page').object_list),
+            posts_count + 1
+        )
+        self.authorized_client.post(
             templates_url_names_login_required['posts/new_post.html'],
             data=form_data,
             follow=True,
         )
-        response_cache_1 = self.authorized_client.get(templates_url_names['posts/index.html'])
-        self.assertEqual(len(response_cache_1.context.get('page').object_list), posts_count + 1)
+        response_cache_1 = self.authorized_client.get(
+            templates_url_names['posts/index.html']
+        )
+        self.assertEqual(
+            len(response_cache_1.context.get('page').object_list),
+            posts_count + 1)
         cache.clear()
-        response_final = self.authorized_client.get(templates_url_names['posts/index.html'])
-        self.assertEqual(len(response_final.context.get('page').object_list), posts_count + 2)
+        response_final = self.authorized_client.get(
+            templates_url_names['posts/index.html'])
+        self.assertEqual(
+            len(response_final.context.get('page').object_list),
+            posts_count + 2)
 

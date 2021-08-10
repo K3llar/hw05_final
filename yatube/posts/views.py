@@ -23,7 +23,11 @@ def index(request):
         post_list = Post.objects.all()
         cache.set('index_page', post_list, timeout=20)
     return render(request, 'posts/index.html',
-                  {'page': paginator(request, post_list, paginator_pages)})
+                  {'page': paginator(
+                      request,
+                      post_list,
+                      paginator_pages
+                  )})
 
 
 def group_posts(request, slug):
@@ -31,23 +35,36 @@ def group_posts(request, slug):
     post_list = group.groups.all()
     return render(request, 'posts/group.html',
                   {'group': group,
-                   'page': paginator(request, post_list, paginator_pages)})
+                   'page': paginator(
+                       request,
+                       post_list,
+                       paginator_pages
+                   )})
 
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     post_list = Post.objects.all().filter(author=author)
-    if request.user.is_authenticated and Follow.objects.filter(user=request.user, author=author).exists():
+    if request.user.is_authenticated and Follow.objects.filter(
+            user=request.user, author=author).exists():
         return render(request, 'posts/profile.html',
                       {
                           'author': author,
-                          'page': paginator(request, post_list, paginator_pages),
+                          'page': paginator(
+                              request,
+                              post_list,
+                              paginator_pages
+                          ),
                           'following': True,
                       })
     return render(request, 'posts/profile.html',
                   {
                       'author': author,
-                      'page': paginator(request, post_list, paginator_pages),
+                      'page': paginator(
+                          request,
+                          post_list,
+                          paginator_pages
+                      ),
                   })
 
 
@@ -133,8 +150,14 @@ def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
     user_name = request.user.username
     user = get_object_or_404(User, username=user_name)
-    if author != user and not Follow.objects.filter(author=author, user=request.user).exists():
-        Follow.objects.create(user_id=request.user.id, author_id=author.id)
+    if author != user and not Follow.objects.filter(
+            author=author,
+            user=request.user
+    ).exists():
+        Follow.objects.create(
+            user_id=request.user.id,
+            author_id=author.id
+        )
     return redirect('profile', username)
 
 
@@ -153,4 +176,7 @@ def follow_index(request):
     post_list = Post.objects.filter(author__following__user=request.user)
     return render(request,
                   'posts/follow.html',
-                  {'page': paginator(request, post_list, paginator_pages)})
+                  {'page': paginator(request,
+                                     post_list,
+                                     paginator_pages
+                                     )})
