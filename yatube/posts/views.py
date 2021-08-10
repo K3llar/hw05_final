@@ -131,10 +131,10 @@ def add_comment(request, username, post_id):
 @login_required()
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    if author.id != request.user.id:
-        if not Follow.objects.filter(author=author, user=request.user).exists():
-            Follow.objects.create(user_id=request.user.id, author_id=author.id)
-            return redirect('profile', username)
+    user_name = request.user.username
+    user = get_object_or_404(User, username=user_name)
+    if author != user and not Follow.objects.filter(author=author, user=request.user).exists():
+        Follow.objects.create(user_id=request.user.id, author_id=author.id)
     return redirect('profile', username)
 
 
@@ -149,11 +149,8 @@ def profile_unfollow(request, username):
 
 
 @login_required()
-def profile_index(request):
-    if Follow.objects.filter(user=request.user):
-        post_list = Post.objects.filter(author__following__user=request.user)
-        return render(request, 'posts/follow.html',
-                      {
-                          'page': paginator(request, post_list, paginator_pages),
-                      })
-    return render(request, 'posts/follow.html')
+def follow_index(request):
+    post_list = Post.objects.filter(author__following__user=request.user)
+    return render(request,
+                  'posts/follow.html',
+                  {'page': paginator(request, post_list, paginator_pages)})

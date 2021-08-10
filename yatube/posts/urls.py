@@ -6,7 +6,7 @@ urlpatterns = [
     path('new/',
          views.new_post, name='new_post'),
     path('follow/',
-         views.profile_index, name='follow_index'),
+         views.follow_index, name='follow_index'),
     path('<str:username>/follow/',
          views.profile_follow, name='profile_follow'),
     path('<str:username>/unfollow/',

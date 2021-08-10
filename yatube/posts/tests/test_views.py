@@ -3,7 +3,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
 
-from posts.models import Post, Group, User
+from posts.models import Post, Group, User, Follow
 from .test_urls import (test_data,
                         templates_url_names,
                         templates_url_names_login_required)
@@ -20,6 +20,10 @@ class PostsPagesTests(TestCase):
         )
         cls.user = User.objects.create_user(
             username=test_data['user'])
+        cls.follow_user = User.objects.create_user(
+            username=test_data['user_not_author'])
+        cls.follow_user_2 = User.objects.create_user(
+            username='another_follower')
         cls.group = Group.objects.create(
             title=test_data['group_title'],
             slug=test_data['group_slug'],
@@ -144,4 +148,24 @@ class PostsPagesTests(TestCase):
             with self.subTest(field=field):
                 self.assertIn(field, context)
 
+    def test_show_post_for_follow_user(self):
+        """Test posts for followers"""
+        self.authorized_client.force_login(self.follow_user)
+        Follow.objects.create(user=self.follow_user, author=self.user)
+        response = self.authorized_client.get(
+            templates_url_names_login_required['posts/follow.html'])
+        self.assertEqual(len(response.context.get('page').object_list), 1)
+        self.authorized_client.force_login(self.follow_user_2)
+        response = self.authorized_client.get(
+            templates_url_names_login_required['posts/follow.html'])
+        self.assertEqual(len(response.context.get('page').object_list), 0)
 
+    def test_follow_and_unfollow_function(self):
+        """Test function of class Follow"""
+        self.authorized_client.force_login(self.follow_user)
+        Follow.objects.create(user=self.follow_user, author=self.user)
+        response = Follow.objects.filter(user=self.follow_user).count()
+        self.assertEqual(response, 1)
+        Follow.objects.filter(user=self.follow_user, author=self.user).delete()
+        response = Follow.objects.filter(user=self.follow_user).count()
+        self.assertEqual(response, 0)

@@ -26,6 +26,7 @@ templates_url_names = {
 }
 templates_url_names_login_required = {
     'posts/new_post.html': reverse('new_post'),
+    'posts/follow.html': reverse('follow_index'),
 }
 
 
@@ -66,6 +67,15 @@ class PostURLTests(TestCase):
                             'post_id': cls.post_author.id,
                         }))
         }
+        cls.comment_post_url = {
+            'posts/comments.html': (
+                reverse('comment',
+                        kwargs={
+                            'username': test_data['user'],
+                            'post_id': cls.post_author.id,
+                        })
+            )
+        }
 
     def setUp(self):
         self.guest_client = Client()
@@ -87,6 +97,10 @@ class PostURLTests(TestCase):
                 response = self.guest_client.get(address)
                 self.assertEqual(response.status_code, 302)
         for template, address in self.edit_post_url.items():
+            with self.subTest(adress=address):
+                response = self.guest_client.get(address)
+                self.assertEqual(response.status_code, 302)
+        for template, address in self.comment_post_url.items():
             with self.subTest(adress=address):
                 response = self.guest_client.get(address)
                 self.assertEqual(response.status_code, 302)
