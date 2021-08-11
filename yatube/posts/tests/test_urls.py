@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+from http import HTTPStatus
 
 from posts.models import Post, Group, User
 
@@ -87,33 +88,33 @@ class PostURLTests(TestCase):
         for template, address in templates_url_names.items():
             with self.subTest(adress=address):
                 response = self.guest_client.get(address)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_urls_non_available_for_guest_client(self):
         """Test guest client redirection for login-required urls"""
         for template, address in templates_url_names_login_required.items():
             with self.subTest(adress=address):
                 response = self.guest_client.get(address)
-                self.assertEqual(response.status_code, 302)
+                self.assertEqual(response.status_code, HTTPStatus.FOUND)
         for template, address in self.edit_post_url.items():
             with self.subTest(adress=address):
                 response = self.guest_client.get(address)
-                self.assertEqual(response.status_code, 302)
+                self.assertEqual(response.status_code, HTTPStatus.FOUND)
         for template, address in self.comment_post_url.items():
             with self.subTest(adress=address):
                 response = self.guest_client.get(address)
-                self.assertEqual(response.status_code, 302)
+                self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_urls_available_only_for_authorized_client(self):
         """Test authorized client access for login-required urls"""
         for template, address in templates_url_names_login_required.items():
             with self.subTest(adress=address):
                 response = self.authorized_client.get(address)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
         for template, address in self.edit_post_url.items():
             with self.subTest(adress=address):
                 response = self.authorized_client.get(address)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_redirect_from_edit_post_for_none_author(self):
         """Test redirection from edit post page for none-author client"""
@@ -137,4 +138,4 @@ class PostURLTests(TestCase):
             reverse('group',
                     kwargs={'slug': test_data['wrong_group']})
         )
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)

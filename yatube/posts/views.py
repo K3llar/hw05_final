@@ -20,7 +20,7 @@ def paginator(request, post_list, paginator_pages):
 def index(request):
     post_list = cache.get('index_page')
     if post_list is None:
-        post_list = Post.objects.all()
+        post_list = Post.objects.select_related('group').all()
         cache.set('index_page', post_list, timeout=20)
     return render(request, 'posts/index.html',
                   {'page': paginator(
@@ -28,6 +28,10 @@ def index(request):
                       post_list,
                       paginator_pages
                   )})
+# Как я понял из описания select_related нужен для уменьшения количества запросов
+# к базе. В случае когда запрос вызывает не все элементы как в функции index
+# В случаях когда запрос содержит фильтрацию по какому либо элементу
+# (автор, группа) нет же смысла использовать select_related?
 
 
 def group_posts(request, slug):

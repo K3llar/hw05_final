@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+from http import HTTPStatus
 
 
 class AboutURLTests(TestCase):
@@ -15,7 +16,7 @@ class AboutURLTests(TestCase):
         for template, address in self.template_url_names:
             with self.subTest(adress=address):
                 response = self.guest_client.get(address)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_about_urls_uses_correct_template(self):
         for template, address in self.template_url_names:
